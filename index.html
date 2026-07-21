@@ -215,6 +215,7 @@
         place-items: center;
         min-height: min(64vh, 640px);
         isolation: isolate;
+        contain: layout paint;
       }
 
       .orb-stage::before,
@@ -254,7 +255,9 @@
           linear-gradient(135deg, color-mix(in srgb, var(--state-primary) 62%, transparent), color-mix(in srgb, var(--state-secondary) 55%, transparent));
         box-shadow: 0 0 36px var(--state-glow), 0 0 92px color-mix(in srgb, var(--state-primary) 32%, transparent), inset 0 0 52px rgba(255, 255, 255, 0.18);
         animation: orb-idle var(--state-speed) ease-in-out infinite;
-        transform: translateZ(0);
+        backface-visibility: hidden;
+        contain: layout paint;
+        transform: translate3d(0, 0, 0);
         transition: transform 240ms var(--ease-out), box-shadow 240ms var(--ease-out), filter 240ms var(--ease-out);
         will-change: transform;
       }
@@ -266,7 +269,7 @@
       }
 
       .neo-orb:hover {
-        transform: translateY(-5px) scale(1.025) translateZ(0);
+        transform: translate3d(0, -5px, 0) scale(1.025);
         box-shadow: 0 0 46px var(--state-glow), 0 0 118px color-mix(in srgb, var(--state-primary) 42%, transparent), inset 0 0 58px rgba(255, 255, 255, 0.2);
       }
 
@@ -276,6 +279,7 @@
         position: absolute;
         border-radius: inherit;
         pointer-events: none;
+        will-change: transform;
       }
 
       .neo-orb::before {
@@ -386,14 +390,14 @@
       }
 
       @keyframes orb-idle {
-        0%, 100% { transform: scale(1) translateZ(0); }
-        50% { transform: scale(1.035) translateZ(0); }
+        0%, 100% { transform: translate3d(0, 0, 0) scale(1); }
+        50% { transform: translate3d(0, 0, 0) scale(1.035); }
       }
 
       @keyframes orb-error {
-        0%, 100% { transform: translateX(0) scale(1) translateZ(0); }
-        25% { transform: translateX(-3px) scale(1.012) translateZ(0); }
-        75% { transform: translateX(3px) scale(1.012) translateZ(0); }
+        0%, 100% { transform: translate3d(0, 0, 0) scale(1); }
+        25% { transform: translate3d(-3px, 0, 0) scale(1.012); }
+        75% { transform: translate3d(3px, 0, 0) scale(1.012); }
       }
 
       @keyframes orbit-ring {
@@ -491,29 +495,53 @@
     </main>
 
     <script>
-      const appShell = document.querySelector('.app-shell');
-      const stateCopy = document.querySelector('#state-copy');
-      const stateButtons = document.querySelectorAll('[data-state]');
+      const OrbState = Object.freeze({
+        IDLE: 'idle',
+        LISTENING: 'listening',
+        THINKING: 'thinking',
+        SPEAKING: 'speaking',
+        ERROR: 'error'
+      });
 
-      const stateLabels = {
-        idle: 'Idle mode: Neo is awake, calm, and ready.',
-        listening: 'Listening mode: prepared for future microphone events.',
-        thinking: 'Thinking mode: prepared for future reasoning and tool activity.',
-        speaking: 'Speaking mode: prepared for future speech output.',
-        error: 'Error mode: prepared for recoverable system feedback.'
-      };
+      const stateLabels = Object.freeze({
+        [OrbState.IDLE]: 'Idle mode: Neo is awake, calm, and ready.',
+        [OrbState.LISTENING]: 'Listening mode: prepared for future microphone events.',
+        [OrbState.THINKING]: 'Thinking mode: prepared for future reasoning and tool activity.',
+        [OrbState.SPEAKING]: 'Speaking mode: prepared for future speech output.',
+        [OrbState.ERROR]: 'Error mode: prepared for recoverable system feedback.'
+      });
 
-      function setOrbState(state) {
-        appShell.dataset.orbState = state;
-        stateCopy.textContent = stateLabels[state];
-        stateButtons.forEach((button) => {
-          button.setAttribute('aria-pressed', String(button.dataset.state === state));
-        });
+      function createNeoOrbController(root) {
+        const stateCopy = root.querySelector('#state-copy');
+        const stateButtons = Array.from(root.querySelectorAll('[data-state]'));
+        const validStates = new Set(Object.values(OrbState));
+
+        function setState(nextState) {
+          const state = validStates.has(nextState) ? nextState : OrbState.IDLE;
+          root.dataset.orbState = state;
+          stateCopy.textContent = stateLabels[state];
+          stateButtons.forEach((button) => {
+            button.setAttribute('aria-pressed', String(button.dataset.state === state));
+          });
+        }
+
+        function bindPreviewControls() {
+          root.addEventListener('click', (event) => {
+            const button = event.target.closest('[data-state]');
+            if (button) {
+              setState(button.dataset.state);
+            }
+          });
+        }
+
+        bindPreviewControls();
+        setState(root.dataset.orbState);
+
+        return { setState, states: OrbState };
       }
 
-      stateButtons.forEach((button) => {
-        button.addEventListener('click', () => setOrbState(button.dataset.state));
-      });
+      // Future voice, AI, and automation modules can call window.NeoOrb.setState('listening').
+      window.NeoOrb = createNeoOrbController(document.querySelector('.app-shell'));
     </script>
   </body>
 </html>
