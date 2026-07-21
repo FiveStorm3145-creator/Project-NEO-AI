@@ -8,6 +8,64 @@ Project NEO AI is the starting point for Neo, the assistant layer of BLIX. The l
 
 BLIX is the broader ecosystem that Neo will eventually support. Neo should be able to act as the friendly interface between the user and BLIX features, including productivity tools, automation, system actions, and personalized assistance.
 
+## Current Interface
+
+The current frontend is a premium static Neo interface built with HTML, CSS, and TypeScript. It includes a large animated AI orb, glassmorphism panels, responsive layout, a sidebar shell, and a JavaScript-accessible orb state controller.
+
+Prepared orb states:
+
+- `idle`
+- `listening`
+- `thinking`
+- `speaking`
+- `error`
+
+Future modules can switch orb states with:
+
+```js
+window.NeoOrb.setState('listening');
+```
+
+AI backend logic and voice recognition are intentionally not implemented yet.
+
+## Project Structure
+
+```text
+.
+├── backend/          # Reserved for future Python FastAPI backend work
+├── dist/             # Compiled browser JavaScript
+├── src/              # TypeScript and CSS frontend source
+├── index.html        # Static Neo interface shell
+├── package.json      # Frontend scripts and TypeScript dependency
+└── tsconfig.json     # TypeScript compiler settings
+```
+
+## Development
+
+Install frontend dependencies:
+
+```bash
+npm install
+```
+
+Run a local static server:
+
+```bash
+npm run dev
+```
+
+Type-check the frontend:
+
+```bash
+npm run typecheck
+```
+
+Build the TypeScript output:
+
+```bash
+npm run build
+```
+
 ## Core Goals
 
 - Build a clean, scalable foundation for Neo.
@@ -44,7 +102,7 @@ BLIX is the broader ecosystem that Neo will eventually support. Neo should be ab
 
 ## Status
 
-This repository is in the foundation stage. The first priority is to establish a stable project structure and document the direction before adding major features.
+This repository is in the frontend foundation stage. The first production-quality Neo interface shell is available, while AI, voice, memory, and automation remain future work.
 
 ## License
 
