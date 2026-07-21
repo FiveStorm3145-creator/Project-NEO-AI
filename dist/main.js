@@ -12,7 +12,8 @@ function isOrbState(value) {
 function createNeoOrbController(root) {
     const stateCopy = root.querySelector('#state-copy');
     const stateButtons = Array.from(root.querySelectorAll('[data-state]'));
-    let currentState = isOrbState(root.dataset.orbState ?? '') ? root.dataset.orbState : 'idle';
+    const initialState = root.dataset.orbState ?? '';
+    let currentState = isOrbState(initialState) ? initialState : 'idle';
     if (!stateCopy) {
         throw new Error('Neo orb controller requires #state-copy.');
     }
